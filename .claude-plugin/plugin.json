@@ -1,0 +1,12 @@
+{
+  "name": "navigating-ai-reality-plugin",
+  "displayName": "Reality Lens: Veteran Staff Production AI Propulsion & Safety Suite",
+  "version": "2.0.0",
+  "description": "Bridges the global AI capability funnel for non-technical users (+43% Centaur/Cyborg propulsion, 7-Pillar Extended Mind Resume Cards, ACTOR self-education) while enforcing deterministic defenses against RLHF Sycophancy, Technological Folie a Deux, IOED+, Autonomous Cyber Swarms, and Agent Wallet 2FA self-escalation.",
+  "author": "Kyle Rosebrook",
+  "license": "MIT",
+  "homepage": "https://agentskills.io",
+  "mcpServers": ".mcp.json",
+  "commandsDir": "commands",
+  "skillsDir": "skills"
+}

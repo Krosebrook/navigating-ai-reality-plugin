@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "rules": [
+    {
+      "skill": "navigating-ai-reality",
+      "enforcement": "SUGGEST",
+      "triggers": {
+        "keywords": [
+          "out of the loop",
+          "augment me",
+          "propel",
+          "jagged frontier",
+          "resume card",
+          "second why",
+          "ioed",
+          "explanatory depth",
+          "sycophancy",
+          "stop glazing",
+          "folie a deux",
+          "reality check",
+          "agent swarm",
+          "agent wallet",
+          "x money",
+          "countersign",
+          "doomsday",
+          "rsi"
+        ],
+        "intentPatterns": [
+          "(?i)(how can ai help|what can ai actually do|am i using ai right)",
+          "(?i)(is this a good idea|tell me honestly|stress test|devil's advocate)",
+          "(?i)(connect.*(email|inbox).*(wallet|bank|card|pay))"
+        ]
+      }
+    },
+    {
+      "skill": "navigating-ai-reality",
+      "enforcement": "BLOCK",
+      "hook": "PreToolUse",
+      "description": "Blocks unattended Email/2FA + Wallet/Payment tool combinations without physical Countersign approval (Cornell-Yale Circle USDC study)."
+    }
+  ]
+}

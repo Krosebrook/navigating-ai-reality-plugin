@@ -1,0 +1,55 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(skills/navigating-ai-reality/**)",
+      "Read(commands/**)",
+      "Bash(python3 skills/navigating-ai-reality/scripts/cli_reality_check.py *)",
+      "Bash(python3 skills/navigating-ai-reality/scripts/validate_production_plugin.py *)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(curl * | sh*)",
+      "Bash(wget * | sh*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(**/.env)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/user_prompt_submit.py\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre_tool_use_countersign.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_adversarial_audit.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

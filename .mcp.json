@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "reality_lens": {
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/skills/navigating-ai-reality/scripts/reality_lens_mcp_server.py"
+      ],
+      "env": {
+        "REALITY_LENS_MODE": "non_tech_citizen",
+        "COUNTERSIGN_STRICT": "true",
+        "MAX_CALLS_PER_MINUTE": "30",
+        "TOOL_SIGNING_KEY": "${REALITY_LENS_SIGNING_KEY}"
+      }
+    }
+  }
+}
