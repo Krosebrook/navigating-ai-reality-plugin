@@ -1,20 +1,22 @@
 {
   "permissions": {
     "allow": [
-      "Read(skills/navigating-ai-reality/**)",
-      "Read(commands/**)",
-      "Bash(python3 skills/navigating-ai-reality/scripts/cli_reality_check.py *)",
-      "Bash(python3 skills/navigating-ai-reality/scripts/validate_production_plugin.py *)"
+      "mcp__reality_lens__reality_lens_search_tools",
+      "mcp__reality_lens__reality_lens_propel_goal",
+      "mcp__reality_lens__reality_lens_build_scaffold",
+      "mcp__reality_lens__reality_lens_puncture_ioed",
+      "mcp__reality_lens__reality_lens_break_sycophancy",
+      "mcp__reality_lens__reality_lens_audit_safety",
+      "mcp__reality_lens__reality_lens_horizon_radar",
+      "mcp__reality_lens__reality_lens_career_and_layoff_shield",
+      "mcp__reality_lens__reality_lens_scam_and_bank_run_radar",
+      "mcp__reality_lens__reality_lens_brain_fry_and_family_guard",
+      "mcp__reality_lens__reality_lens_ambition_and_gauntlet_builder"
     ],
     "deny": [
       "Bash(rm -rf *)",
       "Bash(git push --force*)",
-      "Bash(git reset --hard*)",
-      "Bash(curl * | sh*)",
-      "Bash(wget * | sh*)",
-      "Read(~/.ssh/**)",
-      "Read(~/.aws/**)",
-      "Read(**/.env)"
+      "Read(.env)"
     ]
   },
   "hooks": {
@@ -24,18 +26,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/user_prompt_submit.py\""
+            "command": "python3 .claude/hooks/user_prompt_submit.py"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash|Write|Edit|mcp__.*",
+        "matcher": ".*",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre_tool_use_countersign.py\""
+            "command": "python3 .claude/hooks/pre_tool_use_countersign.py"
           }
         ]
       }
@@ -46,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_adversarial_audit.py\""
+            "command": "python3 .claude/hooks/stop_adversarial_audit.py"
           }
         ]
       }

@@ -1,58 +1,22 @@
-# Navigating AI Reality (`navigating-ai-reality-plugin` v2.0.0)
+# Navigating AI Reality (`navigating-ai-reality-plugin` v3.0.0 — 39-Notebook Full-Spectrum Citizen Edition)
 
-**Veteran Staff-Level Production Claude Plugin, Deterministic Hook Suite & MCP 2025.11 Stateless Server for Non-Technical End Users.**
+Production-grade Claude MCP Server (**11 stateless tools**), Knowledge Work Plugin (**8 slash commands**), AgentSkill (**8 1-hop reference manuals**), and Citizen Companion Suite synthesizing **39 research notebooks**.
 
-Built on the [`agentskills.io`](https://agentskills.io) open specification and Anthropic Knowledge Work Plugin standard.
+## 8 Slash Commands & 11 MCP Tools
 
-## Package Architecture
+1. `/augment-me` -> `reality_lens_propel_goal`, `reality_lens_build_scaffold`, `reality_lens_ambition_and_gauntlet_builder`
+2. `/explain-deep` -> `reality_lens_puncture_ioed`
+3. `/reality-check` -> `reality_lens_break_sycophancy`
+4. `/safety-scan` -> `reality_lens_audit_safety`
+5. `/horizon-radar` -> `reality_lens_horizon_radar`
+6. `/career-shield` -> `reality_lens_career_and_layoff_shield`
+7. `/scam-radar` -> `reality_lens_scam_and_bank_run_radar`
+8. `/brain-fry-guard` -> `reality_lens_brain_fry_and_family_guard`
+9. Progressive Discovery -> `reality_lens_search_tools`
 
-```text
-navigating-ai-reality-plugin/
-├── .claude-plugin/
-│   └── plugin.json                                     # Anthropic Cowork / Claude Code Plugin Manifest
-├── .mcp.json                                           # Zero-config MCP Server registration
-├── .claude/
-│   ├── settings.json                                   # Least-privilege allow/deny rules & Hook wiring
-│   ├── skills/skill-rules.json                         # Deterministic SUGGEST & PreToolUse BLOCK rules
-│   └── hooks/
-│       ├── user_prompt_submit.py                       # Intent matcher & safety/propulsion reminder
-│       ├── pre_tool_use_countersign.py                 # Exit Code 2 BLOCK on Email+Wallet 2FA self-escalation
-│       └── stop_adversarial_audit.py                   # Post-response epistemic check
-├── commands/                                           # 5 Plain-English Slash Commands
-│   ├── augment-me.md                                   # /augment-me (Centaur/Cyborg + 7-Pillar Resume Card)
-│   ├── explain-deep.md                                 # /explain-deep (IOED+ Second-Why + ACTOR Protocol)
-│   ├── reality-check.md                                # /reality-check (Anti-Sycophancy + Folie a Deux Breaker)
-│   ├── safety-scan.md                                  # /safety-scan (Cornell-Yale Wallet Gate + Custody Audit)
-│   └── horizon-radar.md                                # /horizon-radar (RSI, Cyber Swarms & FLI Safety Grades)
-├── skills/
-│   └── navigating-ai-reality/                          # Spec-compliant Gerund AgentSkill (Zero README.md inside)
-│       ├── SKILL.md                                    # L0 Frontmatter + L1 Body (<= 500 lines)
-│       ├── references/                                 # L2 1-Hop Domain References
-│       │   ├── capability-funnel-and-jagged-frontier.md
-│       │   ├── extended-mind-and-ioed-actor.md
-│       │   ├── sycophancy-constitution-and-folie.md
-│       │   └── swarms-wallets-rsi-and-doomsday.md
-│       ├── assets/                                     # User Config & Zero-Placeholder Templates
-│       │   ├── config.md
-│       │   └── resume-card-template.md
-│       └── scripts/                                    # Production MCP Server, CLI & 10-Gate Validator
-│           ├── reality_lens_mcp_server.py
-│           ├── cli_reality_check.py
-│           └── validate_production_plugin.py
-├── install.sh                                          # 1-Click macOS / Linux / WSL Installer
-├── requirements.txt
-└── .env.example
+## Quick Start & 10-Gate Verification
+
+```bash
+python3 skills/navigating-ai-reality/scripts/validate_production_plugin.py
+bash install.sh
 ```
-
-## Quick Start (3 Ways to Use)
-
-1. **1-Click Desktop / CLI Install:**
-   ```bash
-   ./install.sh
-   ```
-2. **Claude Cowork / Claude Code Plugin Install:**
-   ```bash
-   claude plugin add ./navigating-ai-reality-plugin
-   ```
-3. **Standalone Skills Manager Upload:**
-   Upload `skills/navigating-ai-reality/` (or the entire zip) directly into Claude's Skills Manager UI.

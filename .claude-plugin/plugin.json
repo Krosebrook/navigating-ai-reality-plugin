@@ -1,12 +1,22 @@
 {
   "name": "navigating-ai-reality-plugin",
-  "displayName": "Reality Lens: Veteran Staff Production AI Propulsion & Safety Suite",
-  "version": "2.0.0",
-  "description": "Bridges the global AI capability funnel for non-technical users (+43% Centaur/Cyborg propulsion, 7-Pillar Extended Mind Resume Cards, ACTOR self-education) while enforcing deterministic defenses against RLHF Sycophancy, Technological Folie a Deux, IOED+, Autonomous Cyber Swarms, and Agent Wallet 2FA self-escalation.",
+  "version": "3.0.0",
+  "description": "Reality Lens v3.0.0 (39-Notebook Full-Spectrum Citizen Edition): AI Propulsion, Extended Mind, Anti-Sycophancy, Wallet Countersign, Career/Layoff Shield, AI Bank Run & Scam Radar, Brain Fry & Robot-Proof Family Guard, and Ambition/Gauntlet Loop Builder.",
   "author": "Kyle Rosebrook",
   "license": "MIT",
-  "homepage": "https://agentskills.io",
-  "mcpServers": ".mcp.json",
-  "commandsDir": "commands",
-  "skillsDir": "skills"
+  "repository": "https://github.com/Krosebrook/navigating-ai-reality-plugin",
+  "mcpServers": ["reality_lens"],
+  "commands": [
+    "commands/augment-me.md",
+    "commands/explain-deep.md",
+    "commands/reality-check.md",
+    "commands/safety-scan.md",
+    "commands/horizon-radar.md",
+    "commands/career-shield.md",
+    "commands/scam-radar.md",
+    "commands/brain-fry-guard.md"
+  ],
+  "skills": [
+    "skills/navigating-ai-reality"
+  ]
 }
