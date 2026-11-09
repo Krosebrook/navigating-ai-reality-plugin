@@ -31,3 +31,8 @@ jobs:
       - name: Run 10-Gate Production Plugin Validator (v3.0.0 - 11 MCP Tools / 39 Notebooks)
         run: |
           python3 skills/navigating-ai-reality/scripts/validate_production_plugin.py
+
+      - name: Package & Verify Production Plugin ZIP Archive
+        run: |
+          zip -r navigating-ai-reality-plugin-v3.0.0.zip .claude-plugin .claude commands skills companion-deliverables .mcp.json .env.example install.sh requirements.txt LICENSE README.md
+          unzip -t navigating-ai-reality-plugin-v3.0.0.zip

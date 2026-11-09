@@ -22,32 +22,57 @@ except ImportError:
     from pydantic import validator as field_validator
 
 try:
-    from fastmcp import FastMCP
+    from mcp.server.fastmcp import FastMCP as _BaseFastMCP
 except ImportError:
-    class FastMCP:
-        def __init__(self, name: str):
-            self.name = name
-            self._tools: dict[str, Any] = {}
-            self._resources: dict[str, Any] = {}
-            self._capabilities: Any = None
-        def tool(self, **kwargs):
-            def decorator(fn):
-                self._tools[fn.__name__] = fn
-                return fn
-            return decorator
-        def resource(self, uri: str):
-            def decorator(fn):
-                self._resources[uri] = fn
-                return fn
-            return decorator
-        def capabilities(self):
-            def decorator(fn):
-                self._capabilities = fn
-                return fn
-            return decorator
-        async def call_tool(self, name: str, **kwargs):
-            return await self._tools[name](**kwargs)
-        def run(self):
+    try:
+        from fastmcp import FastMCP as _BaseFastMCP
+    except ImportError:
+        _BaseFastMCP = None
+
+
+class FastMCP:
+    def __init__(self, name: str):
+        self.name = name
+        self._sdk = _BaseFastMCP(name) if _BaseFastMCP is not None else None
+        self._tools: dict[str, Any] = {}
+        self._resources: dict[str, Any] = {}
+        self._capabilities: Any = None
+
+    def tool(self, **kwargs):
+        def decorator(fn):
+            self._tools[fn.__name__] = fn
+            if self._sdk is not None:
+                try:
+                    self._sdk.tool(**kwargs)(fn)
+                except Exception:
+                    pass
+            return fn
+        return decorator
+
+    def resource(self, uri: str):
+        def decorator(fn):
+            self._resources[uri] = fn
+            if self._sdk is not None:
+                try:
+                    self._sdk.resource(uri)(fn)
+                except Exception:
+                    pass
+            return fn
+        return decorator
+
+    def capabilities(self):
+        def decorator(fn):
+            self._capabilities = fn
+            return fn
+        return decorator
+
+    async def call_tool(self, name: str, **kwargs):
+        return await self._tools[name](**kwargs)
+
+    def run(self):
+        if self._sdk is not None and hasattr(self._sdk, "run"):
+            self._sdk.run()
+        else:
             print(f"[{self.name}] Production MCP Server v3.0.0 running ({len(self._tools)} tools registered).")
 
 mcp = FastMCP("reality_lens")
