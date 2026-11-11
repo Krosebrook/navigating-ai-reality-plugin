@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: reality-lens-mcp
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: REALITY_LENS_STATELESS_SPEC
+        value: "2025-11"
+      - key: REALITY_LENS_RATE_LIMIT_RPM
+        value: "60"
+      - key: REALITY_LENS_BEARER_TOKEN
+        sync: false
+      - key: REALITY_LENS_HMAC_KEY
+        generateValue: true
