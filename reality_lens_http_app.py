@@ -53,6 +53,14 @@ def _build_inner_mcp_asgi_app() -> Any:
 
     # Deterministic JSON-RPC 2.0 Streamable HTTP fallback if neither SDK HTTP helper is installed
     async def _minimal_jsonrpc_mcp_app(scope: dict[str, Any], receive: Callable, send: Callable) -> None:
+        if scope["type"] == "lifespan":
+            while True:
+                msg = await receive()
+                if msg["type"] == "lifespan.startup":
+                    await send({"type": "lifespan.startup.complete"})
+                elif msg["type"] == "lifespan.shutdown":
+                    await send({"type": "lifespan.shutdown.complete"})
+                    return
         if scope["type"] != "http":
             return
         body = b""
@@ -185,6 +193,11 @@ async def app(scope: dict[str, Any], receive: Callable, send: Callable) -> None:
                 extra_headers=[(b"www-authenticate", b'Bearer realm="reality_lens_mcp"')],
             )
             return
+
+    if path == "/mcp":
+        routes = getattr(getattr(_inner_app, "router", None), "routes", [])
+        if any(type(r).__name__ == "Mount" and getattr(r, "path", "") == "/mcp" for r in routes):
+            scope = {**scope, "path": "/mcp/", "raw_path": b"/mcp/"}
 
     await _inner_app(scope, receive, send)
 

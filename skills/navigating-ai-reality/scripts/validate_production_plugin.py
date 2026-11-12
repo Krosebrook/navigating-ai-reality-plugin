@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-10-Gate Production Plugin & AgentSkill Validator (v3.0.0 — 11 Tools / 39 Notebooks)
+11-Gate Production Plugin, AgentSkill & Streamable HTTP Validator (v3.0.0 — 11 Tools / 39 Notebooks)
 """
 import ast
 import asyncio
 import json
+import os
 import py_compile
 import re
 import subprocess
@@ -14,7 +15,99 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent.parent
 PLUGIN_ROOT = SKILL_DIR.parent.parent
 sys.path.insert(0, str(SKILL_DIR / "scripts"))
+sys.path.insert(0, str(PLUGIN_ROOT))
 import reality_lens_mcp_server as srv
+
+
+async def _verify_http_asgi_gate() -> None:
+    """Gate 11: Verify /health (200), unauthenticated /mcp (401), and Bearer /mcp initialize (200)."""
+    import reality_lens_http_app as http_entry
+
+    async def _send_asgi_http(path: str, method: str = "GET", headers: list[tuple[bytes, bytes]] | None = None, body: bytes = b"") -> tuple[int, bytes]:
+        captured: list[dict] = []
+        sent_req = False
+
+        async def receive():
+            nonlocal sent_req
+            if not sent_req:
+                sent_req = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            await asyncio.sleep(0.05)
+            return {"type": "http.disconnect"}
+
+        async def send(msg):
+            captured.append(msg)
+
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0", "spec_version": "2.3"},
+            "http_version": "1.1",
+            "scheme": "http",
+            "method": method,
+            "root_path": "",
+            "path": path,
+            "raw_path": path.encode("ascii"),
+            "query_string": b"",
+            "server": ("127.0.0.1", 8000),
+            "client": ("127.0.0.1", 50000),
+            "headers": [(b"host", b"127.0.0.1:8000")] + (headers or []),
+        }
+        await http_entry.app(scope, receive, send)
+        status = next(m["status"] for m in captured if m["type"] == "http.response.start")
+        resp_body = b"".join(m.get("body", b"") for m in captured if m["type"] == "http.response.body")
+        return status, resp_body
+
+    lifespan_in: asyncio.Queue = asyncio.Queue()
+    lifespan_out: asyncio.Queue = asyncio.Queue()
+    lifespan_task = asyncio.create_task(
+        http_entry.app({"type": "lifespan", "asgi": {"version": "3.0"}}, lifespan_in.get, lifespan_out.put)
+    )
+    await lifespan_in.put({"type": "lifespan.startup"})
+    startup_msg = await asyncio.wait_for(lifespan_out.get(), timeout=5.0)
+    assert startup_msg["type"] == "lifespan.startup.complete", f"Lifespan startup failed: {startup_msg}"
+
+    prev_token = os.environ.get("REALITY_LENS_BEARER_TOKEN")
+    try:
+        os.environ["REALITY_LENS_BEARER_TOKEN"] = "gate11-ci-bearer-token"
+
+        st_health, body_health = await _send_asgi_http("/health", "GET")
+        assert st_health == 200, f"Expected 200 on /health, got {st_health}"
+        health_data = json.loads(body_health.decode("utf-8"))
+        assert health_data["tools_registered"] == 11 and health_data["auth_required"] is True
+
+        st_unauth, _ = await _send_asgi_http("/mcp", "POST", headers=[(b"content-type", b"application/json")], body=b"{}")
+        assert st_unauth == 401, f"Expected 401 on unauthenticated /mcp, got {st_unauth}"
+
+        init_rpc = json.dumps({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "gate11-validator", "version": "3.0.0"},
+            },
+        }).encode("utf-8")
+        st_auth, body_auth = await _send_asgi_http(
+            "/mcp",
+            "POST",
+            headers=[
+                (b"authorization", b"Bearer gate11-ci-bearer-token"),
+                (b"content-type", b"application/json"),
+                (b"accept", b"application/json, text/event-stream"),
+            ],
+            body=init_rpc,
+        )
+        assert st_auth == 200, f"Expected 200 on authenticated /mcp initialize, got {st_auth}: {body_auth!r}"
+        assert b"reality_lens" in body_auth, f"Expected serverInfo 'reality_lens' in initialize response: {body_auth!r}"
+    finally:
+        if prev_token is None:
+            os.environ.pop("REALITY_LENS_BEARER_TOKEN", None)
+        else:
+            os.environ["REALITY_LENS_BEARER_TOKEN"] = prev_token
+        await lifespan_in.put({"type": "lifespan.shutdown"})
+        await asyncio.wait_for(lifespan_out.get(), timeout=5.0)
+        await asyncio.wait_for(lifespan_task, timeout=5.0)
 
 
 def run_all_gates() -> int:
@@ -77,9 +170,11 @@ def run_all_gates() -> int:
         assert "HIGH SCAM ALERT" in (await srv.reality_lens_scam_and_bank_run_radar("Company will seek to acquire $50M in AI GPUs"))["grammar_of_the_scam_check"]["alert"]
         assert "HIGH BRAIN FRY RISK" in (await srv.reality_lens_brain_fry_and_family_guard("Delve into a rich tapestry", 5.0))["ai_brain_fry_and_workslop_audit"]["risk_status"]
         assert "CRITIC" in (await srv.reality_lens_ambition_and_gauntlet_builder("Audit QBR churn metrics"))["matt_schumer_3_line_gauntlet_loop_prompt"].upper()
+        await _verify_http_asgi_gate()
 
     asyncio.run(_test())
     passed.append("Gate 10: All 11 MCP tools (39 Notebooks Synthesized) + Prompt-Injection defense passed live async execution")
+    passed.append("Gate 11: Streamable HTTP ASGI /health (200), unauthenticated /mcp (401), and Bearer /mcp initialize (200) verified")
     for p in passed:
         print(f"  ✅ {p}")
     return 1 if failed else 0
