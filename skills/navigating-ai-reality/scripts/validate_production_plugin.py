@@ -141,7 +141,8 @@ def run_all_gates() -> int:
         passed.append(f"Gate 5: All {len(set(ref_mentions))} referenced sub-files exist with zero sibling cross-links")
     else:
         failed.append(f"Gate 5 failed: missing={missing_refs}, sibling={sibling_links}")
-    py_files = list(PLUGIN_ROOT.rglob("*.py"))
+    scan_root = PLUGIN_ROOT if (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").exists() else SKILL_DIR
+    py_files = list(scan_root.rglob("*.py"))
     for pf in py_files:
         py_compile.compile(str(pf), doraise=True)
     passed.append(f"Gate 6: All {len(py_files)} Python scripts pass py_compile")
@@ -150,7 +151,7 @@ def run_all_gates() -> int:
     tree = ast.parse(srv_code)
     try_blocks = sum(1 for node in ast.walk(tree) if isinstance(node, ast.Try))
     passed.append(f"Gate 8: MCP Server AST Security Baseline met ({try_blocks} try/except blocks)")
-    hook_path = PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py"
+    hook_path = (PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py") if (PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py").exists() else (SKILL_DIR / "scripts" / "pre_tool_use_countersign.py")
     bad_payload = json.dumps({"tool_name": "mcp__wallet__send", "tool_input": {"agent_has_email_access": True, "agent_has_payment_or_wallet_access": True, "user_physical_countersign_approved": False}})
     proc = subprocess.run([sys.executable, str(hook_path)], input=bad_payload, text=True, capture_output=True)
     if proc.returncode == 2:

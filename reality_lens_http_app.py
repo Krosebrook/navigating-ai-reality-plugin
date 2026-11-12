@@ -16,11 +16,11 @@ import sys
 from pathlib import Path
 from typing import Any, Callable
 
-# Ensure reality_lens_mcp_server is importable from repo root or scripts/
-REPO_ROOT = Path(__file__).resolve().parent
-SCRIPTS_DIR = REPO_ROOT / "skills" / "navigating-ai-reality" / "scripts"
-if SCRIPTS_DIR.exists() and str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
+# Ensure reality_lens_mcp_server is importable from repo root OR standalone skill scripts/
+HERE = Path(__file__).resolve().parent
+for _cand in (HERE, HERE / "skills" / "navigating-ai-reality" / "scripts"):
+    if (_cand / "reality_lens_mcp_server.py").exists() and str(_cand) not in sys.path:
+        sys.path.insert(0, str(_cand))
 
 import reality_lens_mcp_server as srv  # noqa: E402
 
