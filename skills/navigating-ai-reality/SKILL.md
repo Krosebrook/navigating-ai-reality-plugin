@@ -23,6 +23,6 @@ metadata:
 - **Remote Streamable HTTP ASGI Server (`/mcp` + `/health`)**: Execute `scripts/reality_lens_http_app.py`
 - **PreToolUse Email+Wallet Air-Gap Hook (`Exit Code 2`)**: Execute `scripts/pre_tool_use_countersign.py`
 - **Standalone Citizen CLI**: Execute `scripts/cli_reality_check.py`
-- **11-Gate Production Validator**: Execute `scripts/validate_production_plugin.py`
+- **12-Gate Production Validator**: Execute `scripts/validate_production_plugin.py`
 - **Citizen Runtime Config**: Read `assets/config.md`
 - **Session Resume Card Template**: Read `assets/resume-card-template.md`

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-11-Gate Production Plugin, AgentSkill & Streamable HTTP Validator (v3.0.0 — 11 Tools / 39 Notebooks)
+12-Gate Production Plugin, AgentSkill & Streamable HTTP Validator (v3.0.0 — 11 Tools / 39 Notebooks)
 """
 import ast
 import asyncio
+import hashlib
 import json
 import os
 import py_compile
@@ -17,6 +18,10 @@ PLUGIN_ROOT = SKILL_DIR.parent.parent
 sys.path.insert(0, str(SKILL_DIR / "scripts"))
 sys.path.insert(0, str(PLUGIN_ROOT))
 import reality_lens_mcp_server as srv
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 async def _verify_http_asgi_gate() -> None:
@@ -112,6 +117,7 @@ async def _verify_http_asgi_gate() -> None:
 
 def run_all_gates() -> int:
     passed, failed = [], []
+    is_plugin_repo = (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").exists()
     skill_md_path = SKILL_DIR / "SKILL.md"
     text = skill_md_path.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -141,7 +147,7 @@ def run_all_gates() -> int:
         passed.append(f"Gate 5: All {len(set(ref_mentions))} referenced sub-files exist with zero sibling cross-links")
     else:
         failed.append(f"Gate 5 failed: missing={missing_refs}, sibling={sibling_links}")
-    scan_root = PLUGIN_ROOT if (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").exists() else SKILL_DIR
+    scan_root = PLUGIN_ROOT if is_plugin_repo else SKILL_DIR
     py_files = list(scan_root.rglob("*.py"))
     for pf in py_files:
         py_compile.compile(str(pf), doraise=True)
@@ -151,7 +157,7 @@ def run_all_gates() -> int:
     tree = ast.parse(srv_code)
     try_blocks = sum(1 for node in ast.walk(tree) if isinstance(node, ast.Try))
     passed.append(f"Gate 8: MCP Server AST Security Baseline met ({try_blocks} try/except blocks)")
-    hook_path = (PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py") if (PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py").exists() else (SKILL_DIR / "scripts" / "pre_tool_use_countersign.py")
+    hook_path = (PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py") if is_plugin_repo else (SKILL_DIR / "scripts" / "pre_tool_use_countersign.py")
     bad_payload = json.dumps({"tool_name": "mcp__wallet__send", "tool_input": {"agent_has_email_access": True, "agent_has_payment_or_wallet_access": True, "user_physical_countersign_approved": False}})
     proc = subprocess.run([sys.executable, str(hook_path)], input=bad_payload, text=True, capture_output=True)
     if proc.returncode == 2:
@@ -176,8 +182,31 @@ def run_all_gates() -> int:
     asyncio.run(_test())
     passed.append("Gate 10: All 11 MCP tools (39 Notebooks Synthesized) + Prompt-Injection defense passed live async execution")
     passed.append("Gate 11: Streamable HTTP ASGI /health (200), unauthenticated /mcp (401), and Bearer /mcp initialize (200) verified")
+
+    if is_plugin_repo:
+        parity_pairs = (
+            (PLUGIN_ROOT / "reality_lens_http_app.py", SKILL_DIR / "scripts" / "reality_lens_http_app.py"),
+            (PLUGIN_ROOT / ".claude" / "hooks" / "pre_tool_use_countersign.py", SKILL_DIR / "scripts" / "pre_tool_use_countersign.py"),
+        )
+        mismatches = []
+        digests = []
+        for src_p, dst_p in parity_pairs:
+            h_src, h_dst = _sha256(src_p), _sha256(dst_p)
+            if h_src != h_dst:
+                mismatches.append(f"{src_p.relative_to(PLUGIN_ROOT)} ({h_src[:12]}) != {dst_p.relative_to(PLUGIN_ROOT)} ({h_dst[:12]})")
+            else:
+                digests.append(f"{dst_p.name}={h_src[:12]}")
+        if mismatches:
+            failed.append(f"Gate 12 failed: Dual-copy SHA-256 drift detected: {'; '.join(mismatches)}")
+        else:
+            passed.append(f"Gate 12: Dual-copy SHA-256 parity verified ({', '.join(digests)})")
+    else:
+        passed.append("Gate 12: Standalone skill mode active (dual-copy repo parity N/A)")
+
     for p in passed:
         print(f"  ✅ {p}")
+    for f in failed:
+        print(f"  ❌ {f}", file=sys.stderr)
     return 1 if failed else 0
 
 
