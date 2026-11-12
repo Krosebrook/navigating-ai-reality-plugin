@@ -28,11 +28,28 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run 10-Gate Production Plugin Validator (v3.0.0 - 11 MCP Tools / 39 Notebooks)
+      - name: Run 12-Gate Production Plugin Validator (v3.0.0 - 11 MCP Tools / 39 Notebooks / HTTP ASGI / Parity)
         run: |
           python3 skills/navigating-ai-reality/scripts/validate_production_plugin.py
 
       - name: Package & Verify Production Plugin ZIP Archive
         run: |
-          zip -r navigating-ai-reality-plugin-v3.0.0.zip .claude-plugin .claude commands skills companion-deliverables .mcp.json .env.example install.sh requirements.txt LICENSE README.md
+          zip -r navigating-ai-reality-plugin-v3.0.0.zip \
+            .claude-plugin .claude commands skills companion-deliverables \
+            reality_lens_http_app.py Dockerfile .dockerignore render.yaml scripts \
+            .mcp.json .env.example install.sh requirements.txt LICENSE README.md
           unzip -t navigating-ai-reality-plugin-v3.0.0.zip
+
+      - name: Upload Binary ZIP & Companion Deliverables to GitHub Release v3.0.0
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload v3.0.0 \
+            navigating-ai-reality-plugin-v3.0.0.zip \
+            companion-deliverables/claude_reality_lens_plugin.html \
+            companion-deliverables/reality_lens_citizen_field_guide.md \
+            companion-deliverables/reality_lens_companion_workbook.csv \
+            companion-deliverables/reality_lens_prompt_and_template_pack.md \
+            --repo "${{ github.repository }}" \
+            --clobber
