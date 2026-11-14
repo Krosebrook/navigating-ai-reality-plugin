@@ -1,4 +1,7 @@
-# Navigating AI Reality — Reality Lens v3.0.0 (39-Notebook Citizen Edition)
+# Loxihart Beacon · Civic Compass
+
+> **Loxihart Suite:** `Loxihart Beacon` (`loxihart-beacon`) · **Architectural Role:** Civic Compass · **Lexicon:** *Beacon*
+> **Purpose:** Production Claude plugin, stateless MCP 2025.11 server, deterministic hooks, and citizen safety suite.
 
 Production-grade **Claude Code Plugin**, **AgentSkill**, and **11-Tool Stateless MCP Server** (supporting both **Local `stdio`** and **Remote `Streamable HTTP`**) synthesized from 39 research notebooks to close the public AI capability-awareness gap while defending against cognitive, financial, career, and cyber threats.
 
