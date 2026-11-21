@@ -1,4 +1,4 @@
 mcp>=1.2.0
-fastmcp>=2.3.0
+fastmcp>=4.2.1
 pydantic>=2.0.0
 uvicorn[standard]>=0.30.0
