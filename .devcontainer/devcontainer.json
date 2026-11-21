@@ -1,0 +1,23 @@
+{
+  "name": "Civic Compass (Navigating AI Reality Plugin)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "Reality Lens Streamable HTTP MCP",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "python3 -m pip install --upgrade pip && pip install -r requirements.txt && python3 skills/navigating-ai-reality/scripts/validate_production_plugin.py",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "GitHub.vscode-pull-request-github"
+      ]
+    }
+  }
+}
